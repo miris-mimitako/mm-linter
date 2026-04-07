@@ -47,6 +47,17 @@ module.exports = [
       "mm/dto-export-name": "error",
       "mm/explicit-public-surface": "error",
       "mm/forbidden-relative-depth": ["error", { maxDepth: 2 }],
+      "mm/framework-leakage": ["error", {
+        rootDirs: ["src"],
+        layers: {
+          domain: {
+            denyImports: ["react", "express", "@prisma/client", "@nestjs/*"],
+          },
+          application: {
+            denyImports: ["react", "@nestjs/*"],
+          },
+        },
+      }],
       "mm/hooks-export-name": "error",
       "mm/layer-import-direction": ["error", {
         rootDirs: ["src"],
@@ -135,6 +146,10 @@ Requires imports to go through configured barrel directories.
 ### `mm/forbidden-relative-depth`
 
 Disallows overly deep relative imports like `../../../x`.
+
+### `mm/framework-leakage`
+
+Disallows framework and library imports in restricted layers such as `domain` or `application`.
 
 ### `mm/name-responsibility-match`
 

@@ -11,6 +11,7 @@ module.exports = {
     "dto-export-name": require("./rules/dto-export-name"),
     "explicit-public-surface": require("./rules/explicit-public-surface"),
     "forbidden-relative-depth": require("./rules/forbidden-relative-depth"),
+    "framework-leakage": require("./rules/framework-leakage"),
     "hooks-export-name": require("./rules/hooks-export-name"),
     "layer-import-direction": require("./rules/layer-import-direction"),
     "layer-structure": require("./rules/layer-structure"),
