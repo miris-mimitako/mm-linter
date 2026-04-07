@@ -21,6 +21,20 @@ module.exports = [
       mm: mmLinter,
     },
     rules: {
+      "mm/barrel-boundary": ["error", {
+        boundaries: [{ directoryName: "domain" }],
+      }],
+      "mm/dangerous-api": ["error", {
+        rootDirs: ["src"],
+        layers: {
+          domain: {
+            deny: ["Date.now", "Math.random", "fetch", "process.env"],
+          },
+          application: {
+            deny: ["console.log"],
+          },
+        },
+      }],
       "mm/directory-export-name": ["error", {
         targets: [
           {
@@ -31,6 +45,8 @@ module.exports = [
         ],
       }],
       "mm/dto-export-name": "error",
+      "mm/explicit-public-surface": "error",
+      "mm/forbidden-relative-depth": ["error", { maxDepth: 2 }],
       "mm/hooks-export-name": "error",
       "mm/layer-import-direction": ["error", {
         rootDirs: ["src"],
@@ -46,7 +62,37 @@ module.exports = [
           application: ["infrastructure", "presentation"],
         },
       }],
+      "mm/name-responsibility-match": ["error", {
+        targets: [
+          {
+            suffix: "Usecase",
+            allowedDirectories: ["usecases"],
+            requiredMethods: ["execute"],
+          },
+        ],
+      }],
+      "mm/no-cross-layer-instantiation": ["error", {
+        rootDirs: ["src"],
+        aliases: ["@"],
+        layers: {
+          application: {},
+          presentation: {},
+        },
+        forbidden: {
+          application: ["presentation"],
+        },
+      }],
+      "mm/no-empty-catch-or-swallow": "error",
+      "mm/no-inline-implementation-in-interface-layer": ["error", {
+        layers: {
+          presentation: {
+            maxStatements: 2,
+          },
+        },
+      }],
+      "mm/no-todo-shipping": "error",
       "mm/presentation-export-name": "error",
+      "mm/testability-guard": "error",
       "mm/usecase-export-name": "error",
     },
   },
@@ -54,6 +100,69 @@ module.exports = [
 ```
 
 ## Rules
+
+### `mm/dangerous-api`
+
+Disallows risky APIs by layer.
+
+Example:
+
+```js
+"mm/dangerous-api": ["error", {
+  rootDirs: ["src"],
+  layers: {
+    domain: {
+      deny: ["Date.now", "Math.random", "fetch", "process.env"],
+    },
+    application: {
+      deny: ["console.log"],
+    },
+  },
+}]
+```
+
+This rule checks:
+
+- function calls like `fetch()`
+- member calls like `Date.now()`
+- member access like `process.env`
+- constructor calls like `new Date()`
+
+### `mm/barrel-boundary`
+
+Requires imports to go through configured barrel directories.
+
+### `mm/forbidden-relative-depth`
+
+Disallows overly deep relative imports like `../../../x`.
+
+### `mm/name-responsibility-match`
+
+Checks that names like `*Usecase` or `*Repository` are placed in the right directory and define required methods.
+
+### `mm/no-inline-implementation-in-interface-layer`
+
+Limits inline statement count in interface-layer handlers such as presentation or controllers.
+
+### `mm/no-cross-layer-instantiation`
+
+Disallows `new` on classes imported from forbidden layers.
+
+### `mm/testability-guard`
+
+Disallows test-hostile APIs such as `Date.now()` or `Math.random()` in core layers.
+
+### `mm/no-todo-shipping`
+
+Disallows shipping comments like `TODO`, `FIXME`, or `temporary`.
+
+### `mm/no-empty-catch-or-swallow`
+
+Disallows empty catch blocks and obvious swallowed errors.
+
+### `mm/explicit-public-surface`
+
+Restricts exports to explicit entry files such as `index.ts`.
 
 ### `mm/directory-export-name`
 
