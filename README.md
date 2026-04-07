@@ -21,6 +21,7 @@ module.exports = [
       mm: mmLinter,
     },
     rules: {
+      "mm/dto-export-name": "error",
       "mm/hooks-export-name": "error",
     },
   },
@@ -28,6 +29,39 @@ module.exports = [
 ```
 
 ## Rules
+
+### `mm/dto-export-name`
+
+Requires exported functions in `dto` directories to use the `XxxDto` naming convention.
+
+Checked targets:
+
+- `export function ...`
+- `export const ...`
+
+Only files whose path includes `/dto/` are checked.
+
+Valid:
+
+```js
+export function UserDto() {
+  return null;
+}
+
+export const SessionDto = () => null;
+```
+
+Invalid:
+
+```js
+export function user() {
+  return null;
+}
+
+export const session = () => null;
+```
+
+Non-exported helper functions are allowed.
 
 ### `mm/hooks-export-name`
 
