@@ -38,6 +38,8 @@ module.exports = {
     messages: {
       invalidDirectoryExportName:
         "Exported {{subject}} in a {{directoryName}} directory must be named {{format}}. '{{name}}' is not allowed.",
+      missingDirectoryExportName:
+        "Default exported {{subject}} in a {{directoryName}} directory must have a name that matches {{format}}.",
     },
   },
   create(context) {
@@ -61,7 +63,29 @@ module.exports = {
               directoryName: target.directoryName,
               format: target.format,
               subject: target.subject || "functions",
-            }
+            },
+            "missingDirectoryExportName"
+          );
+        }
+      },
+      ExportDefaultDeclaration(node) {
+        for (const target of targets) {
+          if (!isTargetDirectoryFile(context.filename, target.directoryName)) {
+            continue;
+          }
+
+          const matcher = buildMatcher(target.pattern);
+          inspectExportedDeclaration(
+            context,
+            node.declaration,
+            (name) => matcher.test(name),
+            "invalidDirectoryExportName",
+            {
+              directoryName: target.directoryName,
+              format: target.format,
+              subject: target.subject || "functions",
+            },
+            "missingDirectoryExportName"
           );
         }
       },

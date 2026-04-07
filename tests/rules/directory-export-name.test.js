@@ -48,6 +48,36 @@ test("directory-export-name rule", () => {
           },
         ],
       },
+      {
+        filename: "/project/src/factory/user.js",
+        code: "export class UserFactory {}",
+        options: [
+          {
+            targets: [
+              {
+                directoryName: "factory",
+                pattern: "Factory$",
+                format: "XxxFactory",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        filename: "/project/src/factory/user.js",
+        code: "export default class DefaultFactory {}",
+        options: [
+          {
+            targets: [
+              {
+                directoryName: "factory",
+                pattern: "Factory$",
+                format: "XxxFactory",
+              },
+            ],
+          },
+        ],
+      },
     ],
     invalid: [
       {
@@ -73,6 +103,31 @@ test("directory-export-name rule", () => {
               format: "XxxPresenter",
               name: "user",
               subject: "presenters",
+            },
+          },
+        ],
+      },
+      {
+        filename: "/project/src/factory/user.js",
+        code: "export default class {}",
+        options: [
+          {
+            targets: [
+              {
+                directoryName: "factory",
+                pattern: "Factory$",
+                format: "XxxFactory",
+              },
+            ],
+          },
+        ],
+        errors: [
+          {
+            messageId: "missingDirectoryExportName",
+            data: {
+              directoryName: "factory",
+              format: "XxxFactory",
+              subject: "functions",
             },
           },
         ],

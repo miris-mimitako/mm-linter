@@ -30,6 +30,18 @@ test("dto-export-name rule", () => {
         code: "const helper = () => null; export const FeatureDto = helper;",
       },
       {
+        filename: "/project/src/dto/user-dto.js",
+        code: "export class UserDto {}",
+      },
+      {
+        filename: "/project/src/dto/session-dto.js",
+        code: "export const SessionDto = class SessionDto {};",
+      },
+      {
+        filename: "/project/src/dto/default-dto.js",
+        code: "export default class DefaultUserDto {}",
+      },
+      {
         filename: "/project/src/utils/dto.ts",
         code: "export function helper() { return null; }",
       },
@@ -66,6 +78,25 @@ test("dto-export-name rule", () => {
           {
             messageId: "invalidDtoExportName",
             data: { name: "badFactory" },
+          },
+        ],
+      },
+      {
+        filename: "/project/src/dto/user.js",
+        code: "export class User {}",
+        errors: [
+          {
+            messageId: "invalidDtoExportName",
+            data: { name: "User" },
+          },
+        ],
+      },
+      {
+        filename: "/project/src/dto/default.js",
+        code: "export default class {}",
+        errors: [
+          {
+            messageId: "missingDtoExportName",
           },
         ],
       },
