@@ -21,14 +21,49 @@ module.exports = [
       mm: mmLinter,
     },
     rules: {
+      "mm/directory-export-name": ["error", {
+        targets: [
+          {
+            directoryName: "factory",
+            pattern: "Factory$",
+            format: "XxxFactory",
+          },
+        ],
+      }],
       "mm/dto-export-name": "error",
       "mm/hooks-export-name": "error",
+      "mm/presentation-export-name": "error",
+      "mm/usecase-export-name": "error",
     },
   },
 ];
 ```
 
 ## Rules
+
+### `mm/directory-export-name`
+
+Configurable rule for exported function names in arbitrary directories.
+
+Example:
+
+```js
+"mm/directory-export-name": ["error", {
+  targets: [
+    {
+      directoryName: "factory",
+      pattern: "Factory$",
+      format: "XxxFactory",
+    },
+    {
+      directoryName: "presenter",
+      pattern: "Presenter$",
+      format: "XxxPresenter",
+      subject: "presenters",
+    },
+  ],
+}]
+```
 
 ### `mm/dto-export-name`
 
@@ -62,6 +97,28 @@ export const session = () => null;
 ```
 
 Non-exported helper functions are allowed.
+
+### `mm/presentation-export-name`
+
+Requires exported functions in `presentation` directories to use the `XxxPresentation` naming convention.
+
+Checked targets:
+
+- `export function ...`
+- `export const ...`
+
+Only files whose path includes `/presentation/` are checked.
+
+### `mm/usecase-export-name`
+
+Requires exported functions in `usecase` directories to use the `XxxUsecase` naming convention.
+
+Checked targets:
+
+- `export function ...`
+- `export const ...`
+
+Only files whose path includes `/usecase/` are checked.
 
 ### `mm/hooks-export-name`
 
