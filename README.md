@@ -21,8 +21,17 @@ module.exports = [
       mm: mmLinter,
     },
     rules: {
+      "mm/async-safety": "error",
       "mm/barrel-boundary": ["error", {
         boundaries: [{ directoryName: "domain" }],
+      }],
+      "mm/comment-contract": ["error", {
+        targets: [
+          {
+            directories: ["usecases", "repositories"],
+            minDescriptionLength: 12,
+          },
+        ],
       }],
       "mm/dangerous-api": ["error", {
         rootDirs: ["src"],
@@ -35,6 +44,18 @@ module.exports = [
           },
         },
       }],
+      "mm/dependency-injection-enforcement": ["error", {
+        rootDirs: ["src"],
+        layers: {
+          application: {
+            denyNew: ["*Repository", "*RepositoryImpl", "*Client", "*Service"],
+          },
+          presentation: {
+            denyNew: ["*Usecase", "*Repository", "*Client"],
+          },
+        },
+      }],
+      "mm/duplicate-role-detection": "error",
       "mm/directory-export-name": ["error", {
         targets: [
           {
@@ -73,6 +94,8 @@ module.exports = [
           application: ["infrastructure", "presentation"],
         },
       }],
+      "mm/mutation-guard": "error",
+      "mm/naming-consistency-between-file-and-symbol": "error",
       "mm/name-responsibility-match": ["error", {
         targets: [
           {
@@ -103,6 +126,56 @@ module.exports = [
       }],
       "mm/no-todo-shipping": "error",
       "mm/presentation-export-name": "error",
+      "mm/query-command-separation": ["error", {
+        targets: [
+          {
+            directories: ["usecases"],
+            queryNamePatterns: ["*Query", "get*", "find*"],
+            commandNamePatterns: ["*Command", "execute*", "handle*"],
+            mutationCallPatterns: ["repository.save*", "repository.update*", "repository.delete*"],
+          },
+        ],
+      }],
+      "mm/result-error-handling": ["error", {
+        targets: [
+          {
+            directories: ["usecases"],
+            functionNamePatterns: ["execute*", "handle*"],
+            resultCallPatterns: ["Result.*", "ok", "err"],
+          },
+        ],
+      }],
+      "mm/serialization-boundary": ["error", {
+        rootDirs: ["src"],
+        layers: {
+          domain: {
+            deny: ["JSON.stringify", "JSON.parse", "structuredClone"],
+          },
+          application: {
+            deny: ["JSON.stringify", "JSON.parse"],
+          },
+        },
+      }],
+      "mm/test-coupling-guard": ["error", {
+        testFilePatterns: [".test.", ".spec."],
+        maxInternalDepth: 3,
+        denyImportSegments: ["internal", "private", "impl"],
+      }],
+      "mm/structured-log-contract": ["error", {
+        targets: ["console.*", "logger.*", "log.*"],
+        requiredKeys: ["timestamp", "applicationName", "level", "description"],
+      }],
+      "mm/side-effect-boundary": ["error", {
+        rootDirs: ["src"],
+        layers: {
+          domain: {
+            deny: ["fetch", "console.log", "process.env", "Date.now"],
+          },
+          application: {
+            deny: ["console.log"],
+          },
+        },
+      }],
       "mm/testability-guard": "error",
       "mm/usecase-export-name": "error",
     },
@@ -111,6 +184,30 @@ module.exports = [
 ```
 
 ## Rules
+
+### `mm/async-safety`
+
+Disallows floating async or promise-returning calls unless they are awaited, returned, assigned, or explicitly ignored with `void`.
+
+### `mm/dependency-injection-enforcement`
+
+Disallows direct `new` of configured dependency roles in selected layers, so DI or factory/provider paths are used instead.
+
+### `mm/duplicate-role-detection`
+
+Detects duplicate exported role names such as repeated `*Usecase` or `*Repository` implementations within the same lint run.
+
+### `mm/comment-contract`
+
+Requires a minimal JSDoc contract comment on exported APIs in selected directories.
+
+### `mm/test-coupling-guard`
+
+Restricts tests from importing deep internal implementation paths instead of stable public surfaces.
+
+### `mm/structured-log-contract`
+
+Requires log calls to emit an object payload containing at least `timestamp`, `applicationName`, `level`, and `description`.
 
 ### `mm/dangerous-api`
 
@@ -150,6 +247,30 @@ Disallows overly deep relative imports like `../../../x`.
 ### `mm/framework-leakage`
 
 Disallows framework and library imports in restricted layers such as `domain` or `application`.
+
+### `mm/side-effect-boundary`
+
+Disallows top-level side effects such as `fetch()`, `console.log()`, `process.env`, or `Date.now()` in restricted layers.
+
+### `mm/result-error-handling`
+
+Requires selected exported functions to return a Result-style value and avoid direct `throw`.
+
+### `mm/serialization-boundary`
+
+Disallows direct `JSON.stringify`, `JSON.parse`, and similar serialization APIs in restricted layers.
+
+### `mm/query-command-separation`
+
+Ensures queries stay read-only and commands do not directly return object or array read models.
+
+### `mm/mutation-guard`
+
+Disallows public setters on `*ValueObject` and prevents `this.x = ...` reassignment outside constructors for selected class roles.
+
+### `mm/naming-consistency-between-file-and-symbol`
+
+Ensures exported symbol names stay aligned with the file basename.
 
 ### `mm/name-responsibility-match`
 
