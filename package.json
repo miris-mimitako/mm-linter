@@ -18,6 +18,10 @@
   "author": "miris-mimitako",
   "type": "commonjs",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "rules/"
+  ],
   "scripts": {
     "test": "node --test"
   },
