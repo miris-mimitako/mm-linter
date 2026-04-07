@@ -1,12 +1,6 @@
 "use strict";
 
-const path = require("path");
-
-const DEFAULT_ROOT_DIRS = ["src"];
-
-function normalizeFilename(filename) {
-  return filename.split(path.sep).join("/");
-}
+const { DEFAULT_ROOT_DIRS, getLayerMatchFromFilename } = require("./helpers/layer-path");
 
 function escapeRegExp(value) {
   return value.replace(/[|\\{}()[\]^$+?.]/g, "\\$&");
@@ -40,37 +34,6 @@ function extractFunctionName(node) {
     (node.init.type === "ArrowFunctionExpression" || node.init.type === "FunctionExpression")
   ) {
     return node.id.name;
-  }
-
-  return null;
-}
-
-function getLayerMatch(filename, options) {
-  if (!filename || filename === "<input>") {
-    return null;
-  }
-
-  const normalizedFilename = normalizeFilename(filename);
-  const segments = normalizedFilename.split("/").filter(Boolean);
-  const rootDirs = options.rootDirs && options.rootDirs.length > 0 ? options.rootDirs : DEFAULT_ROOT_DIRS;
-  const layerNames = Object.keys(options.layers || {});
-
-  for (let index = 0; index < segments.length; index += 1) {
-    if (!rootDirs.includes(segments[index])) {
-      continue;
-    }
-
-    const layerName = segments[index + 1];
-    if (!layerNames.includes(layerName)) {
-      continue;
-    }
-
-    return {
-      filename: normalizedFilename,
-      layerName,
-      directories: segments.slice(index + 2, -1),
-      fileName: segments[segments.length - 1],
-    };
   }
 
   return null;
@@ -201,7 +164,7 @@ module.exports = {
   },
   create(context) {
     const options = context.options[0] || {};
-    const layerMatch = getLayerMatch(context.filename, options);
+    const layerMatch = getLayerMatchFromFilename(context.filename, options);
 
     if (!layerMatch) {
       return {};

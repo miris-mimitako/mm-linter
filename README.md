@@ -32,6 +32,20 @@ module.exports = [
       }],
       "mm/dto-export-name": "error",
       "mm/hooks-export-name": "error",
+      "mm/layer-import-direction": ["error", {
+        rootDirs: ["src"],
+        aliases: ["@"],
+        layers: {
+          domain: {},
+          application: {},
+          infrastructure: {},
+          presentation: {},
+        },
+        forbidden: {
+          domain: ["application", "infrastructure", "presentation"],
+          application: ["infrastructure", "presentation"],
+        },
+      }],
       "mm/presentation-export-name": "error",
       "mm/usecase-export-name": "error",
     },
@@ -223,6 +237,35 @@ const layerOptions = mmLinter.configs.defineLayerStructureOptions(
   }
 );
 ```
+
+### `mm/layer-import-direction`
+
+Enforces forbidden import directions between layers.
+
+Example:
+
+```js
+"mm/layer-import-direction": ["error", {
+  rootDirs: ["src"],
+  aliases: ["@"],
+  layers: {
+    domain: {},
+    application: {},
+    infrastructure: {},
+    presentation: {},
+  },
+  forbidden: {
+    domain: ["application", "infrastructure", "presentation"],
+    application: ["infrastructure", "presentation"],
+  },
+}]
+```
+
+This rule checks:
+
+- `import ... from "..."` 
+- `export ... from "..."` 
+- `require("...")`
 
 ## Development
 
